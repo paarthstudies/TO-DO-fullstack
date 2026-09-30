@@ -1,6 +1,6 @@
-from pathlib import Path
+import sqlite3
 
-from .storage import JsonTaskStorage
+from .sqlite_repository import DEFAULT_DATABASE_PATH, SQLiteTaskRepository
 from .task_manager import TaskManager
 
 
@@ -67,11 +67,10 @@ def run_cli(manager: TaskManager) -> None:
 
 
 def main() -> None:
-    storage = JsonTaskStorage(Path("tasks.json"))
     try:
-        manager = TaskManager(storage)
-    except (OSError, ValueError) as error:
-        print(f"Could not load tasks: {error}")
+        manager = TaskManager(SQLiteTaskRepository(DEFAULT_DATABASE_PATH))
+    except (OSError, sqlite3.Error) as error:
+        print(f"Could not open the task database: {error}")
         return
 
     run_cli(manager)
